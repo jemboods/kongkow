@@ -10,6 +10,7 @@ describe("Kongkow", function () {
     mock = await Mock.deploy();
     const Kongkow = await ethers.getContractFactory("Kongkow");
     kongkow = await Kongkow.deploy(await mock.getAddress());
+    await kongkow.unpause(); // deployments start paused; see the pause suite
     const Badge = await ethers.getContractFactory("KongkowOG");
     badge = Badge.attach(await kongkow.ogBadge());
   });
@@ -219,6 +220,21 @@ describe("Kongkow", function () {
   });
 
   describe("pause", function () {
+    it("starts paused at deployment until the owner unpauses", async function () {
+      const Kongkow = await ethers.getContractFactory("Kongkow");
+      const fresh = await Kongkow.deploy(await mock.getAddress());
+      expect(await fresh.paused()).to.equal(true);
+      await mock.mint(carol.address);
+      await expect(fresh.connect(carol).register()).to.be.revertedWithCustomError(
+        fresh,
+        "EnforcedPause"
+      );
+      await fresh.unpause();
+      await fresh.connect(carol).register();
+      const m = await fresh.members(carol.address);
+      expect(m.memberNo).to.equal(0);
+    });
+
     it("owner can pause and unpause; register blocked while paused", async function () {
       await mock.mint(alice.address);
       await kongkow.pause();
