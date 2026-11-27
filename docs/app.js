@@ -165,7 +165,7 @@ async function loadMembers() {
     return;
   }
   const all = await readKongkow.getMembers(0, Math.min(total, 200));
-  const recent = all.slice(-30).reverse();
+  const recent = [...all].slice(-30).reverse();
   const rows = await Promise.all(
     recent.map(async (addr) => {
       const [info, name] = await Promise.all([memberInfo(addr), displayName(addr)]);
