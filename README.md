@@ -29,8 +29,8 @@ Live app: https://jemboods.github.io/kongkow/
 
 | Contract | Address |
 | --- | --- |
-| Kongkow | `0x1F3aD13f2fD29B44C212aE8A08d8AB0d8BFF854A` |
-| KongkowOG (soulbound badge) | `0x318DA5d4dD57437C8B75Bd5A91DaB4Dec7e34d1d` |
+| Kongkow | `0x16163cdc199cD8E32878da512045b91047b26b89` |
+| KongkowOG (soulbound badge) | `0xFE362607cE9ee17c5c7B95896Dbee4C2Efff05f5` |
 | Agent ID registry (SPACE ID) | `0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F` |
 
 Both Kongkow contracts are verified on Sourcify with an exact match.
@@ -44,6 +44,9 @@ Both Kongkow contracts are verified on Sourcify with an exact match.
 - Owner powers are limited to pause/unpause. The owner cannot edit members,
   posts, or projects, and cannot mint badges directly (only the Kongkow
   contract can, at registration, for members #0–#49).
+- The contract is deployed paused (launch-locked) and unpaused once by the
+  owner at launch, so setup and verification finish before the first
+  registration is possible.
 
 ## Roadmap
 
