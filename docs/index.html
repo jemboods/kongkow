@@ -26,6 +26,11 @@
         <button id="register-btn" class="btn btn-amber" type="button" hidden>Register as a member</button>
       </div>
       <p id="wallet-note" class="wallet-note"></p>
+      <ol id="join-steps" class="join-steps">
+        <li data-step="agentid"><span class="step-name">Hold an Agent ID</span><span class="step-desc">Mint one in the Binance Wallet app if you have not yet.</span></li>
+        <li data-step="connect"><span class="step-name">Connect that wallet</span><span class="step-desc">Use the wallet that holds your Agent ID.</span></li>
+        <li data-step="register"><span class="step-name">Register</span><span class="step-desc">One signature. The first 50 members get the OG badge.</span></li>
+      </ol>
     </div>
   </div>
 </header>
@@ -36,6 +41,10 @@
       <h2>The OG table</h2>
       <p id="og-count" class="og-count">Loading seats…</p>
     </div>
+    <div class="road">
+      <div class="road-bar"><div id="road-fill" class="road-fill"></div></div>
+      <p id="road-text" class="road-text">Loading the road…</p>
+    </div>
     <div id="seats" class="seats"></div>
     <p class="og-note">Seats 0 to 49 come with a soulbound OG badge. It cannot be transferred or sold, so the table stays honest.</p>
   </div>
@@ -44,6 +53,14 @@
 <main class="layout">
   <section class="feed" aria-label="Feed">
     <h2>The conversation</h2>
+    <section class="ngopi" aria-label="Today's table topic">
+      <h3>Today's table topic</h3>
+      <p id="topic-text" class="topic-text">Loading today's topic…</p>
+      <div class="ngopi-row">
+        <span class="ngopi-note">A new topic lands every morning. Post your take.</span>
+        <button id="topic-btn" class="chip-btn" type="button">Post about this</button>
+      </div>
+    </section>
     <div class="composer">
       <label class="sr-only" for="composer-text">Write a post</label>
       <textarea id="composer-text" rows="3" maxlength="600" placeholder="Say something to the table…"></textarea>
@@ -59,10 +76,24 @@
   </section>
 
   <aside class="side">
+    <section aria-label="Your first night">
+      <h2>Your first night</h2>
+      <div id="quest-box" class="quest-box">
+        <p class="empty-note">Connect the wallet that holds your Agent ID to start your first night at the warung.</p>
+      </div>
+    </section>
+
     <section aria-label="Members">
       <h2>Who is here</h2>
       <div id="member-list" class="member-list">
         <p class="empty-note">Loading members…</p>
+      </div>
+    </section>
+
+    <section aria-label="Warung regulars">
+      <h2>Warung regulars</h2>
+      <div id="regulars-list" class="member-list">
+        <p class="empty-note">Loading regulars…</p>
       </div>
     </section>
 
