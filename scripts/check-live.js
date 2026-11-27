@@ -1,6 +1,6 @@
 const { ethers } = require("hardhat");
 async function main() {
-  const k = await ethers.getContractAt("Kongkow", "0x1F3aD13f2fD29B44C212aE8A08d8AB0d8BFF854A");
+  const k = await ethers.getContractAt("Kongkow", "0x16163cdc199cD8E32878da512045b91047b26b89");
   console.log("memberCount:", (await k.memberCount()).toString());
   console.log("postCount:", (await k.postCount()).toString());
   console.log("projectCount:", (await k.projectCount()).toString());
