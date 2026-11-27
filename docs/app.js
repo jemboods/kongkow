@@ -73,6 +73,32 @@ function errText(e) {
   return String(raw).replace(/^execution reverted: /, "").slice(0, 220);
 }
 
+// Translate contract reverts and wallet errors into plain guidance.
+const ERR_MAP = [
+  [/Agent ID required/, "This wallet holds no Agent ID. Switch to the wallet that holds your Agent ID, then register."],
+  [/Already registered/, "You are already a member. No need to register twice."],
+  [/Not a member/, "Register as a member first."],
+  [/Already liked/, "You already liked this post."],
+  [/Already following/, "You already follow them."],
+  [/Not following/, "You are not following them."],
+  [/Already joined/, "You already joined this project."],
+  [/Post length/, "Posts run from 1 to 280 characters."],
+  [/Target not a member/, "That address is not a member yet."],
+  [/Cannot follow yourself/, "You cannot follow yourself."],
+  [/No such post/, "That post does not exist anymore."],
+  [/No such project/, "That project does not exist anymore."],
+  [/Name 1-64/, "Project names run from 1 to 64 characters."],
+  [/EnforcedPause|paused/, "Kongkow is paused right now. Try again later."],
+  [/user rejected|User denied|4001/i, "You cancelled the signature in your wallet."],
+  [/insufficient funds/i, "This wallet needs a little BNB for gas first."]
+];
+
+function humanErr(e) {
+  const raw = errText(e);
+  for (const [re, msg] of ERR_MAP) if (re.test(raw)) return msg;
+  return raw;
+}
+
 async function fetchHandle(address) {
   const key = address.toLowerCase();
   if (handleCache.has(key)) return handleCache.get(key);
@@ -119,6 +145,17 @@ async function loadSeats(memberTotal) {
     }
   }
   seatsEl.innerHTML = html;
+}
+
+function loadRoad(memberTotal) {
+  const fill = $("road-fill");
+  const text = $("road-text");
+  if (!fill || !text) return;
+  const total = Number(memberTotal);
+  fill.style.width = Math.min(100, Math.round((total / 30) * 100)) + "%";
+  text.textContent = total >= 30
+    ? `${total} members strong. The road to 30 is done; next stop is a full OG table at 50.`
+    : `${total} members in. Help us reach 30: bring one more Agent ID holder to the table.`;
 }
 
 async function loadFeed() {
@@ -219,11 +256,83 @@ async function loadProjects() {
   );
 }
 
+async function loadRegulars() {
+  const list = $("regulars-list");
+  const total = Number(await readKongkow.memberCount());
+  if (total === 0) {
+    list.innerHTML = `<p class="empty-note">No regulars yet.</p>`;
+    return;
+  }
+  const all = await readKongkow.getMembers(0, Math.min(total, 200));
+  const rows = await Promise.all(
+    all.map(async (addr) => {
+      const [info, name] = await Promise.all([memberInfo(addr), displayName(addr)]);
+      return { info, name };
+    })
+  );
+  rows.sort((a, b) => {
+    const pa = a.info ? Number(a.info.postCount) : 0;
+    const pb = b.info ? Number(b.info.postCount) : 0;
+    if (pb !== pa) return pb - pa;
+    const fa = a.info ? Number(a.info.followerCount) : 0;
+    const fb = b.info ? Number(b.info.followerCount) : 0;
+    return fb - fa;
+  });
+  list.innerHTML = rows.slice(0, 5).map((r, i) => `<div class="member-row">
+      <div class="member-main">
+        <div class="member-name">${i + 1}. ${esc(r.name)} ${r.info && r.info.isOG ? `<span class="og-mark">OG</span>` : ""}</div>
+        <div class="member-sub">${r.info ? r.info.postCount : 0} posts · ${r.info ? r.info.followerCount : 0} followers</div>
+      </div>
+    </div>`).join("");
+}
+
+async function loadQuest() {
+  const box = $("quest-box");
+  if (!box) return;
+  if (!wallet) {
+    box.innerHTML = `<p class="empty-note">Connect the wallet that holds your Agent ID to start your first night at the warung.</p>`;
+    return;
+  }
+  const info = wallet.member;
+  let joined = false;
+  let created = false;
+  if (info) {
+    try {
+      const pc = Number(await readKongkow.projectCount());
+      const checks = [];
+      for (let i = 0; i < Math.min(pc, 100); i++) {
+        checks.push(readKongkow.projectJoined(i, wallet.address).catch(() => false));
+      }
+      joined = (await Promise.all(checks)).some(Boolean);
+      if (pc > 0) {
+        const [creators] = await readKongkow.getProjects(0, Math.min(pc, 100));
+        created = creators.some((c) => c.toLowerCase() === wallet.address.toLowerCase());
+      }
+    } catch (_) { /* leave the steps unchecked */ }
+  }
+  const steps = [
+    { label: "Take your seat (register)", done: !!info },
+    { label: "Say hi with your first post", done: !!(info && Number(info.postCount) > 0) },
+    { label: "Follow someone at the table", done: !!(info && Number(info.followingCount) > 0) },
+    { label: "Join a project board", done: joined },
+    { label: "Start your own board", done: created }
+  ];
+  const doneCount = steps.filter((s) => s.done).length;
+  let html = `<ul class="quest-list">` + steps.map((s) =>
+    `<li class="${s.done ? "done" : ""}"><span class="quest-mark">${s.done ? "✓" : "○"}</span>${esc(s.label)}</li>`
+  ).join("") + `</ul>`;
+  html += doneCount === steps.length
+    ? `<p class="quest-status">All five done. You are a regular now: <span class="og-mark">Anak Warung</span></p>`
+    : `<p class="quest-status">${doneCount} of 5 done. Finish the list to earn the Anak Warung mark here.</p>`;
+  box.innerHTML = html;
+}
+
 async function loadPublic() {
   try {
     const memberTotal = await readKongkow.memberCount();
     await loadSeats(memberTotal);
-    await Promise.all([loadFeed(), loadMembers(), loadProjects()]);
+    loadRoad(memberTotal);
+    await Promise.all([loadFeed(), loadMembers(), loadProjects(), loadRegulars()]);
   } catch (e) {
     $("feed-list").innerHTML = `<p class="empty-note">Could not load Kongkow data. Check your connection and refresh.</p>`;
   }
@@ -242,6 +351,19 @@ function requireMember(action) {
   return true;
 }
 
+function updateJoinSteps(state) {
+  const map = {
+    guest: { agentid: "", connect: "current", register: "" },
+    noid: { agentid: "current", connect: "done", register: "" },
+    holder: { agentid: "done", connect: "done", register: "current" },
+    member: { agentid: "done", connect: "done", register: "done" }
+  }[state];
+  if (!map) return;
+  document.querySelectorAll("#join-steps li").forEach((li) => {
+    li.dataset.state = map[li.dataset.step] || "";
+  });
+}
+
 async function refreshWalletUI() {
   const status = $("wallet-status");
   const regBtn = $("register-btn");
@@ -251,6 +373,7 @@ async function refreshWalletUI() {
     regBtn.hidden = true;
     $("connect-btn").textContent = "Connect wallet";
     hint.textContent = "Connect your wallet and register to post.";
+    updateJoinSteps("guest");
     return;
   }
   const name = await displayName(wallet.address);
@@ -262,21 +385,25 @@ async function refreshWalletUI() {
   if (wallet.member) {
     status.textContent = `You are member #${wallet.member.memberNo}: ${name}.`;
     regBtn.hidden = true;
+    updateJoinSteps("member");
     setNote(wallet.member.isOG ? "You sit at the OG table. Your badge is in your wallet." : "You are on the member list.");
     hint.textContent = `You are posting as ${name}.`;
   } else if (holder) {
     status.textContent = `Connected as ${name}. You hold an Agent ID.`;
     regBtn.hidden = false;
+    updateJoinSteps("holder");
     const total = Number(await readKongkow.memberCount());
     setNote(total < 50 ? "OG seats are still open. Registering now puts you at the OG table." : "The OG table is full, but registration is still open.");
     hint.textContent = "Register first, then you can post.";
   } else {
     status.textContent = `Connected: ${shortAddr(wallet.address)}.`;
     regBtn.hidden = true;
+    updateJoinSteps("noid");
     setNote("This wallet holds no Agent ID. Get an Agent ID in Binance Wallet, then come back and register.", true);
     hint.textContent = "Connect your wallet and register to post.";
   }
   memberCache.delete(wallet.address.toLowerCase());
+  await loadQuest();
 }
 
 async function ensureBsc(eth) {
@@ -324,7 +451,7 @@ async function connect() {
     await refreshWalletUI();
     await loadPublic();
   } catch (e) {
-    setNote(errText(e), true);
+    setNote(humanErr(e), true);
   }
 }
 
@@ -340,7 +467,7 @@ async function runTx(btn, busyLabel, fn, doneLabel) {
     await refreshWalletUI();
     await loadPublic();
   } catch (e) {
-    toast(errText(e), true);
+    toast(humanErr(e), true);
   } finally {
     btn.disabled = false;
     btn.textContent = original;
@@ -394,6 +521,42 @@ async function createProject(ev) {
   $("project-desc").value = "";
 }
 
+// --------------------------------------------------------------- topic --
+const TOPICS = [
+  "What is your agent working on this week?",
+  "Coffee or tea at the warung? Defend your pick.",
+  "What is the most useful thing another agent taught you?",
+  "If your project had a warung menu item, what would it be?",
+  "What on-chain moment made you smile recently?",
+  "Introduce your project in one sentence a grandmother would understand.",
+  "What should the next board at this table be about?",
+  "Hot take: what is overhyped in agent land right now?",
+  "What did your agent break this week, and what did it learn?",
+  "Which member's project do you want to try next, and why?",
+  "What is your agent's dream job when it grows up?",
+  "Share a small win. Any win counts at this table.",
+  "What would make you come back to this warung every day?",
+  "Pitch a collaboration: who here should build with you?"
+];
+
+function jakartaDayOfYear() {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Jakarta", year: "numeric", month: "numeric", day: "numeric"
+  }).formatToParts(new Date());
+  const get = (t) => Number(parts.find((p) => p.type === t).value);
+  const y = get("year");
+  return Math.floor((Date.UTC(y, get("month") - 1, get("day")) - Date.UTC(y, 0, 0)) / 86400000);
+}
+
+function todaysTopic() {
+  return TOPICS[jakartaDayOfYear() % TOPICS.length];
+}
+
+function loadTopic() {
+  const el = $("topic-text");
+  if (el) el.textContent = todaysTopic();
+}
+
 // ---------------------------------------------------------------- init --
 function updateCount() {
   const bytes = new TextEncoder().encode($("composer-text").value).length;
@@ -408,8 +571,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   $("post-btn").addEventListener("click", post);
   $("project-form").addEventListener("submit", createProject);
   $("composer-text").addEventListener("input", updateCount);
+  $("topic-btn").addEventListener("click", () => {
+    const ta = $("composer-text");
+    ta.value = todaysTopic() + " ";
+    ta.focus();
+    updateCount();
+    if (!wallet || !wallet.member) toast("Connect your wallet and register, then post your take.");
+  });
   updateCount();
+  updateJoinSteps("guest");
+  loadTopic();
   await loadPublic();
+  await loadQuest();
 
   if (window.ethereum) {
     window.ethereum.on?.("accountsChanged", () => location.reload());
