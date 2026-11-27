@@ -429,10 +429,25 @@ async function ensureBsc(eth) {
   }
 }
 
+async function ethProvider() {
+  if (window.__fcBoot) {
+    try {
+      await Promise.race([
+        window.__fcBoot,
+        new Promise((res) => setTimeout(res, 1500))
+      ]);
+    } catch (e) {}
+  }
+  if (window.__fcSdk) {
+    try { const p = await window.__fcSdk.wallet.getEthereumProvider(); if (p) return p; } catch (e) {}
+  }
+  return window.ethereum || null;
+}
+
 async function connect() {
-  const eth = window.ethereum;
+  const eth = await ethProvider();
   if (!eth) {
-    setNote("No wallet found. Open this page in Binance Wallet or a browser with a wallet extension.", true);
+    setNote("No wallet found. Open this page inside Farcaster, in Binance Wallet, or in a browser with a wallet extension.", true);
     return;
   }
   try {
@@ -477,6 +492,12 @@ async function runTx(btn, busyLabel, fn, doneLabel) {
 async function register() {
   if (!wallet) return;
   await runTx($("register-btn"), "Registering…", () => wallet.kongkow.register(), "Registered. Welcome to the table.");
+  if (window.__fcSdk) {
+    try {
+      const m = await wallet.kongkow.members(wallet.address);
+      if (m[0]) await window.__fcSdk.actions.addMiniApp();
+    } catch (e) {}
+  }
 }
 
 async function post() {
@@ -584,11 +605,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadPublic();
   await loadQuest();
 
-  if (window.ethereum) {
-    window.ethereum.on?.("accountsChanged", () => location.reload());
-    window.ethereum.on?.("chainChanged", () => location.reload());
+  const eth = await ethProvider();
+  if (eth) {
+    eth.on?.("accountsChanged", () => location.reload());
+    eth.on?.("chainChanged", () => location.reload());
     try {
-      const accounts = await window.ethereum.request({ method: "eth_accounts" });
+      const accounts = await eth.request({ method: "eth_accounts" });
       if (accounts && accounts.length > 0) await connect();
     } catch (_) { /* guest mode */ }
   }
