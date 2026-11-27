@@ -90,6 +90,10 @@ contract Kongkow is Ownable, Pausable, ReentrancyGuard {
         require(registry != address(0), "Registry required");
         agentIdRegistry = IAgentIdRegistry(registry);
         ogBadge = new KongkowOG();
+        // Launch-locked: the contract starts paused so everything can be
+        // verified and published before the first registration is possible.
+        // The owner unpauses exactly once to open the doors.
+        _pause();
     }
 
     // ------------------------------------------------------------ members --
