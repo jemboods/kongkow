@@ -1,0 +1,353 @@
+/* Kongkow — night warung kopi theme. Tokens live in DESIGN-PLAN.md. */
+:root {
+  --kopi: #17100B;
+  --meja: #241A10;
+  --meja-2: #2E2113;
+  --kertas: #F1E7CF;
+  --abu: #A89880;
+  --lampu: #F0A832;
+  --daun: #7A9B5A;
+  --cabe: #D4573B;
+  --garis: #3A2B18;
+}
+
+* { box-sizing: border-box; }
+
+html { color-scheme: dark; }
+
+body {
+  margin: 0;
+  background: var(--kopi);
+  color: var(--kertas);
+  font-family: "Archivo", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+h1, h2 {
+  font-family: "Anton", "Archivo", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+h3 { font-size: 1rem; font-weight: 800; margin: 0 0 0.5rem; }
+
+a { color: var(--lampu); }
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+:focus-visible {
+  outline: 2px solid var(--lampu);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------- header -- */
+.site-header {
+  border-bottom: 1px solid var(--garis);
+  padding: 2.25rem 1.25rem 1.75rem;
+}
+
+.header-inner,
+.section-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.header-inner {
+  display: flex;
+  gap: 2rem;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.brand { max-width: 34rem; }
+
+.wordmark {
+  font-size: clamp(3rem, 8vw, 4.75rem);
+  line-height: 1;
+  color: var(--lampu);
+}
+
+.tagline {
+  margin: 0.85rem 0 0;
+  color: var(--kertas);
+  max-width: 36em;
+}
+
+.wallet-box {
+  background: var(--meja);
+  border: 1px solid var(--garis);
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+  min-width: 270px;
+  max-width: 340px;
+}
+
+.wallet-status { margin: 0 0 0.6rem; font-weight: 600; }
+.wallet-note { margin: 0.6rem 0 0; color: var(--abu); font-size: 0.9rem; }
+.wallet-note.error { color: var(--cabe); }
+
+.wallet-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+/* ---------------------------------------------------------- buttons -- */
+.btn {
+  font: inherit;
+  font-weight: 800;
+  border-radius: 10px;
+  border: 1px solid var(--lampu);
+  background: var(--lampu);
+  color: var(--kopi);
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+}
+
+.btn:hover { background: #F7BC55; }
+
+.btn:disabled {
+  background: var(--meja-2);
+  border-color: var(--garis);
+  color: var(--abu);
+  cursor: not-allowed;
+}
+
+.chip-btn {
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 999px;
+  border: 1px solid var(--garis);
+  background: transparent;
+  color: var(--kertas);
+  padding: 0.2rem 0.75rem;
+  cursor: pointer;
+}
+
+.chip-btn:hover { border-color: var(--lampu); color: var(--lampu); }
+.chip-btn:disabled { color: var(--abu); cursor: not-allowed; }
+.chip-btn:disabled:hover { border-color: var(--garis); color: var(--abu); }
+.chip-btn.on { border-color: var(--daun); color: var(--daun); }
+
+/* --------------------------------------------------------- OG table -- */
+.og-table {
+  padding: 1.75rem 1.25rem 0.5rem;
+}
+
+.og-head {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.og-head h2 { font-size: 1.9rem; }
+.og-count { margin: 0; color: var(--abu); }
+.og-note { color: var(--abu); font-size: 0.92rem; max-width: 44em; }
+
+.seats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
+  gap: 0.45rem;
+  margin: 1rem 0;
+}
+
+.seat {
+  border: 1px dashed var(--garis);
+  border-radius: 10px;
+  padding: 0.45rem 0.3rem;
+  text-align: center;
+  min-height: 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.1rem;
+}
+
+.seat .seat-no { font-size: 0.72rem; color: var(--abu); }
+.seat .seat-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.seat.filled {
+  border: 1px solid var(--lampu);
+  background: var(--meja);
+}
+
+.seat.filled .seat-no { color: var(--lampu); }
+
+/* ------------------------------------------------------------ layout -- */
+.layout {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 2.5rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 330px;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.layout h2 { font-size: 1.6rem; margin-bottom: 1rem; }
+.side section + section { margin-top: 2.25rem; }
+
+/* ---------------------------------------------------------- composer -- */
+.composer {
+  background: var(--meja);
+  border: 1px solid var(--garis);
+  border-radius: 14px;
+  padding: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+textarea, input[type="text"] {
+  width: 100%;
+  font: inherit;
+  color: var(--kertas);
+  background: var(--kopi);
+  border: 1px solid var(--garis);
+  border-radius: 10px;
+  padding: 0.6rem 0.7rem;
+  resize: vertical;
+}
+
+textarea::placeholder, input::placeholder { color: var(--abu); }
+
+.composer-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.6rem;
+}
+
+.composer-count { color: var(--abu); font-size: 0.85rem; white-space: nowrap; }
+.composer-count.over { color: var(--cabe); }
+.composer-hint { color: var(--abu); font-size: 0.88rem; flex: 1; }
+.composer-hint.error { color: var(--cabe); }
+
+/* -------------------------------------------------------------- feed -- */
+.post {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--garis);
+}
+
+.post-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.post-author { font-weight: 800; }
+.post-meta { color: var(--abu); font-size: 0.85rem; }
+.post-text { margin: 0.35rem 0 0.55rem; overflow-wrap: anywhere; }
+
+.og-mark {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--kopi);
+  background: var(--lampu);
+  border-radius: 999px;
+  padding: 0.05rem 0.5rem;
+}
+
+.addr { font-family: ui-monospace, monospace; font-size: 0.82em; }
+
+/* ------------------------------------------------------------ members -- */
+.member-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--garis);
+}
+
+.member-main { flex: 1; min-width: 0; }
+.member-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.member-sub { color: var(--abu); font-size: 0.82rem; }
+
+/* ----------------------------------------------------------- projects -- */
+.project {
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--garis);
+}
+
+.project-name { font-weight: 800; }
+.project-desc { margin: 0.25rem 0 0.45rem; color: var(--kertas); }
+.project-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--abu);
+  font-size: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.project-form {
+  margin-top: 1.25rem;
+  background: var(--meja);
+  border: 1px solid var(--garis);
+  border-radius: 14px;
+  padding: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.form-hint { margin: 0; color: var(--abu); font-size: 0.88rem; }
+.form-hint.error { color: var(--cabe); }
+
+.empty-note { color: var(--abu); }
+
+/* ------------------------------------------------------------- footer -- */
+.site-footer {
+  border-top: 1px solid var(--garis);
+  padding: 1.75rem 1.25rem 2.5rem;
+  color: var(--abu);
+}
+
+.site-footer p { max-width: 46em; }
+.footer-links { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+
+/* -------------------------------------------------------------- toast -- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.25rem;
+  transform: translateX(-50%);
+  background: var(--meja-2);
+  border: 1px solid var(--lampu);
+  color: var(--kertas);
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  font-weight: 600;
+  max-width: min(92vw, 480px);
+  text-align: center;
+  z-index: 20;
+}
+
+.toast.error { border-color: var(--cabe); }
+
+/* --------------------------------------------------------- responsive -- */
+@media (max-width: 920px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .wallet-box { max-width: none; width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
