@@ -3,8 +3,8 @@
 const fs = require("fs");
 const path = require("path");
 
-const KONGKOW = "0x1F3aD13f2fD29B44C212aE8A08d8AB0d8BFF854A";
-const OG = "0x318DA5d4dD57437C8B75Bd5A91DaB4Dec7e34d1d";
+const KONGKOW = "0x16163cdc199cD8E32878da512045b91047b26b89";
+const OG = "0xFE362607cE9ee17c5c7B95896Dbee4C2Efff05f5";
 const CHAIN = "56";
 const BASE = "https://sourcify.dev/server";
 
