@@ -342,6 +342,108 @@ textarea::placeholder, input::placeholder { color: var(--abu); }
 
 .toast.error { border-color: var(--cabe); }
 
+/* -------------------------------------------------------- join steps -- */
+.join-steps {
+  list-style: none;
+  margin: 0.9rem 0 0;
+  padding: 0.9rem 0 0;
+  border-top: 1px solid var(--garis);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  counter-reset: step;
+}
+
+.join-steps li {
+  display: flex;
+  flex-direction: column;
+  padding-left: 1.9rem;
+  position: relative;
+  opacity: 0.7;
+}
+
+.join-steps li::before {
+  counter-increment: step;
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0.05rem;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 999px;
+  border: 1px solid var(--garis);
+  color: var(--abu);
+  font-size: 0.78rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.join-steps li[data-state="current"] { opacity: 1; }
+.join-steps li[data-state="current"]::before { border-color: var(--lampu); color: var(--lampu); }
+.join-steps li[data-state="done"] { opacity: 1; }
+.join-steps li[data-state="done"]::before {
+  content: "✓";
+  background: var(--daun);
+  border-color: var(--daun);
+  color: var(--kopi);
+}
+
+.step-name { font-weight: 800; font-size: 0.92rem; }
+.step-desc { color: var(--abu); font-size: 0.82rem; }
+
+/* --------------------------------------------------------------- road -- */
+.road { margin: 0.4rem 0 0.2rem; max-width: 560px; }
+
+.road-bar {
+  height: 10px;
+  border: 1px solid var(--garis);
+  border-radius: 999px;
+  background: var(--meja);
+  overflow: hidden;
+}
+
+.road-fill {
+  height: 100%;
+  width: 0;
+  background: var(--daun);
+  border-radius: 999px;
+  transition: width 0.6s ease;
+}
+
+.road-text { margin: 0.45rem 0 0; color: var(--abu); font-size: 0.92rem; }
+
+/* -------------------------------------------------------------- ngopi -- */
+.ngopi {
+  background: var(--meja);
+  border: 1px solid var(--garis);
+  border-radius: 14px;
+  padding: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.topic-text { margin: 0 0 0.6rem; font-weight: 600; }
+
+.ngopi-row { display: flex; align-items: center; gap: 0.75rem; }
+.ngopi-note { color: var(--abu); font-size: 0.88rem; flex: 1; }
+
+/* -------------------------------------------------------------- quest -- */
+.quest-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.quest-list li { display: flex; gap: 0.55rem; align-items: baseline; color: var(--abu); }
+.quest-list li.done { color: var(--kertas); }
+.quest-mark { font-weight: 800; color: var(--abu); }
+.quest-list li.done .quest-mark { color: var(--daun); }
+.quest-status { margin: 0.7rem 0 0; color: var(--abu); font-size: 0.9rem; }
+
 /* --------------------------------------------------------- responsive -- */
 @media (max-width: 920px) {
   .layout { grid-template-columns: minmax(0, 1fr); }
